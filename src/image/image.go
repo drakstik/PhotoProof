@@ -1,15 +1,10 @@
 package image
 
 import (
-	crand "crypto/rand"
 	"encoding/json"
 	"fmt"
 	"math/rand"
 	"time"
-
-	"github.com/consensys/gnark-crypto/ecc/bn254/ecdsa"
-	"github.com/consensys/gnark-crypto/ecc/bn254/fr"
-	"github.com/consensys/gnark-crypto/hash"
 )
 
 /*
@@ -58,58 +53,4 @@ func (image Image) EncodeImage() []byte {
 	}
 
 	return encoded_image
-}
-
-// Return a hash signature of the image and the public key for verification
-func (image Image) HashImage() ([]byte, ecdsa.PublicKey) {
-	// instantiate hash function
-	hFunc := hash.MIMC_BN254.New()
-
-	// create a ecdsa key pair
-	privateKey, err := ecdsa.GenerateKey(crand.Reader)
-	if err != nil {
-		fmt.Println("Error while hashing image: " + err.Error())
-		return []byte{}, ecdsa.PublicKey{}
-	}
-
-	publicKey := privateKey.PublicKey
-
-	// Encode image
-	b := image.EncodeImage()
-
-	var msgFr fr.Element
-	msgFr.SetBytes(b)
-	msg := msgFr.Marshal()
-
-	// sign the message
-	signature, err := privateKey.Sign(msg, hFunc)
-	if err != nil {
-		fmt.Println("Error while hashing image: " + err.Error())
-		return []byte{}, ecdsa.PublicKey{}
-	}
-
-	return signature, publicKey
-}
-
-// Verify the image, given the signature and public key
-// Returns true if the image and signature match, false otherwise.
-func (image Image) Verify(signature []byte, publicKey ecdsa.PublicKey) bool {
-	// instantiate hash function
-	hFunc := hash.MIMC_BN254.New()
-
-	// Encode image
-	b := image.EncodeImage()
-
-	var msgFr fr.Element
-	msgFr.SetBytes(b)
-	msg := msgFr.Marshal()
-
-	// verify that image matches signature
-	validity, err := publicKey.Verify(signature, msg, hFunc)
-	if err != nil {
-		fmt.Println("Error while verifying image: " + err.Error())
-		return false
-	}
-
-	return validity
 }
