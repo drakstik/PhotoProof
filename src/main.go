@@ -299,25 +299,25 @@ func main() {
 	// ----------------------------------------------------------------------------------
 
 	// compiles our circuit into a R1CS
-	// var circuit Matrix
-	// ccs, _ := frontend.Compile(ecc.BN254.ScalarField(), r1cs.NewBuilder, &circuit)
+	var circuit Matrix
+	ccs, _ := frontend.Compile(ecc.BN254.ScalarField(), r1cs.NewBuilder, &circuit)
 
-	// // groth16 zkSNARK: Setup
-	// pk, vk, _ := groth16.Setup(ccs)
+	// groth16 zkSNARK: Setup
+	pk, vk, _ := groth16.Setup(ccs)
 
-	// // witness definition
+	// witness definition
 
-	// a := [3][3]frontend.Variable{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}
+	a := [3][3]frontend.Variable{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}
 
-	// b := [3][3]frontend.Variable{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}
+	b := [3][3]frontend.Variable{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}
 
-	// assignment := Matrix{X: a, Y: b} // X is secret, Y is public.
-	// witness, _ := frontend.NewWitness(&assignment, ecc.BN254.ScalarField())
-	// publicWitness, _ := witness.Public()
+	assignment := Matrix{X: a, Y: b} // X is secret, Y is public.
+	witness, _ := frontend.NewWitness(&assignment, ecc.BN254.ScalarField())
+	publicWitness, _ := witness.Public()
 
-	// // groth16: Prove & Verify
-	// proof, _ := groth16.Prove(ccs, pk, witness) // This proof can be sent alongside verification and public witness Y (i.e. the output).
-	// groth16.Verify(proof, vk, publicWitness)
+	// groth16: Prove & Verify
+	proof, _ := groth16.Prove(ccs, pk, witness) // This proof can be sent alongside verification and public witness Y (i.e. the output).
+	groth16.Verify(proof, vk, publicWitness)
 }
 
 // A Matrix consists of two fields N=16
