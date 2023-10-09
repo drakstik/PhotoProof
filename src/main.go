@@ -7,6 +7,8 @@ import (
 	"github.com/consensys/gnark/frontend/cs/r1cs"
 )
 
+var N = 3
+
 // // As defined in the paper. PK is an output of the Generator function; and inputs for the Prover and Verifier functions.
 // type PK struct {
 // 	pk_PCD groth16.ProvingKey
@@ -287,7 +289,7 @@ func main() {
 	// ----------------------------------------------------------------------------------
 
 	// compiles our circuit into a R1CS
-	var circuit Matrix
+	var circuit IdentityMatrix
 	ccs, _ := frontend.Compile(ecc.BN254.ScalarField(), r1cs.NewBuilder, &circuit)
 
 	// groth16 zkSNARK: Setup
@@ -299,7 +301,7 @@ func main() {
 
 	b := [3][3]frontend.Variable{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}
 
-	assignment := Matrix{X: a, Y: b} // X is secret, Y is public.
+	assignment := IdentityMatrix{X: a, Y: b} // X is secret, Y is public.
 	witness, _ := frontend.NewWitness(&assignment, ecc.BN254.ScalarField())
 	publicWitness, _ := witness.Public()
 
@@ -309,14 +311,20 @@ func main() {
 }
 
 // REQUIRED FOR LIMITATION SHOWCASE
-// A Matrix consists of two fields N=16
-type Matrix struct {
+// A Matrix consists of two fields X and Y with N rows and columns.
+// X and Y are 2D arrays of frontend-Variable that represent pixels of an image.
+type IdentityMatrix struct {
 	X [3][3]frontend.Variable `gnark:"X, secret"` // X = [N*N]frontend.Variable
 	Y [3][3]frontend.Variable `gnark:",public"`
 }
 
 // REQUIRED FOR LIMITATION SHOWCASE
-func (circuit *Matrix) Define(api frontend.API) error {
-	api.AssertIsEqual(circuit.Y[0][2], circuit.X[0][2])
+func (circuit *IdentityMatrix) Define(api frontend.API) error {
+	api.AssertIsEqual(len(circuit.Y), len(circuit.X))
+	for i := 0; i < 3; i++ {
+		for j := 0; j < 3; j++ {
+			api.AssertIsEqual(circuit.X[i][j], circuit.Y[i][j])
+		}
+	}
 	return nil
 }
