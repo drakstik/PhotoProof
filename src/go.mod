@@ -2,8 +2,6 @@ module photoproof
 
 go 1.20
 
-require github.com/consensys/gnark-crypto v0.11.2
-
 require (
 	github.com/bits-and-blooms/bitset v1.8.0 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
